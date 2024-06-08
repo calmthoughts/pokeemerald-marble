@@ -52,7 +52,7 @@ BattleScript_EffectShedTail::
 	jumpifcantswitch SWITCH_IGNORE_ESCAPE_PREVENTION | BS_ATTACKER, BattleScript_ButItFailed
 	setsubstitute
 	jumpifbyte CMP_EQUAL, cMULTISTRING_CHOOSER, B_MSG_SUBSTITUTE_FAILED, BattleScript_SubstituteString
-        orword gHitMarker, HITMARKER_PASSIVE_DAMAGE
+	orword gHitMarker, HITMARKER_PASSIVE_DAMAGE
 	attackanimation
 	waitanimation
 	healthbarupdate BS_ATTACKER
@@ -1734,6 +1734,7 @@ BattleScript_EffectHitSwitchTarget::
 	tryfaintmon BS_TARGET
 	jumpiffainted BS_TARGET, TRUE, BattleScript_MoveEnd
 	jumpifability BS_TARGET, ABILITY_SUCTION_CUPS, BattleScript_AbilityPreventsPhasingOut
+	jumpifability BS_TARGET, ABILITY_GUARD_DOG, BattleScript_MoveEnd
 	jumpifstatus3 BS_TARGET, STATUS3_ROOTED, BattleScript_PrintMonIsRooted
 	jumpiftargetdynamaxed BattleScript_HitSwitchTargetDynamaxed
 	tryhitswitchtarget BattleScript_MoveEnd
@@ -2680,12 +2681,11 @@ BattleScript_EffectHealBlock::
 BattleScript_EffectHitEscape::
 	call BattleScript_EffectHit_Ret
 	jumpifmovehadnoeffect BattleScript_MoveEnd
-	jumpifability BS_TARGET, ABILITY_GUARD_DOG, BattleScript_MoveEnd
 	tryfaintmon BS_TARGET
 	moveendto MOVEEND_ATTACKER_VISIBLE
 	moveendfrom MOVEEND_TARGET_VISIBLE
 	jumpifbattleend BattleScript_HitEscapeEnd
-	jumpifbyte CMP_NOT_EQUAL gBattleOutcome 0, BattleScript_HitEscapeEnd
+	jumpifbyte CMP_NOT_EQUAL, gBattleOutcome, 0, BattleScript_HitEscapeEnd
 	jumpifemergencyexited BS_TARGET, BattleScript_HitEscapeEnd
 	goto BattleScript_MoveSwitch
 BattleScript_HitEscapeEnd:
@@ -3750,7 +3750,7 @@ BattleScript_EffectSubstitute::
 	jumpifstatus2 BS_ATTACKER, STATUS2_SUBSTITUTE, BattleScript_AlreadyHasSubstitute
 	setsubstitute
 	jumpifbyte CMP_EQUAL, cMULTISTRING_CHOOSER, B_MSG_SUBSTITUTE_FAILED, BattleScript_SubstituteString
-        orword gHitMarker, HITMARKER_PASSIVE_DAMAGE
+	orword gHitMarker, HITMARKER_PASSIVE_DAMAGE
 	attackanimation
 	waitanimation
 	healthbarupdate BS_ATTACKER
@@ -7357,6 +7357,12 @@ BattleScript_TargetBurnHeal::
 	updatestatusicon BS_TARGET
 	return
 
+BattleScript_TargetPoisonHealed::
+	printstring STRINGID_PASTELVEILENTERS
+	waitmessage B_WAIT_TIME_LONG
+	updatestatusicon BS_TARGET
+	return
+
 BattleScript_MoveEffectSleep::
 	statusanimation BS_EFFECT_BATTLER
 	printfromtable gFellAsleepStringIds
@@ -8209,7 +8215,7 @@ BattleScript_DazzlingProtected::
 	attackstring
 	ppreduce
 	pause B_WAIT_TIME_SHORT
-	call BattleScript_AbilityPopUp
+	call BattleScript_AbilityPopUpScripting
 	printstring STRINGID_POKEMONCANNOTUSEMOVE
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_MoveEnd
